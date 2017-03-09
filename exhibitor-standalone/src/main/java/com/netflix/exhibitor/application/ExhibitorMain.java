@@ -307,7 +307,6 @@ public class ExhibitorMain implements Closeable
                 webXmlConfiguration.configure(url.toString());
             }
         };
-        contextHandler.start();
         try
         {
             SecurityHandler securityHandler = webXmlConfiguration.getWebAppContext().getSecurityHandler();
@@ -318,6 +317,7 @@ public class ExhibitorMain implements Closeable
             }
 
             root.setSecurityHandler(securityHandler);
+            contextHandler.start();
         }
         finally
         {
