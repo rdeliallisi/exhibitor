@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
+import java.io.File;
 
 public class ExhibitorCLI
 {
@@ -88,6 +89,8 @@ public class ExhibitorCLI
     public static final String HELP = "help";
     public static final String ALT_HELP = "?";
     public static final String HTTP_PORT = "port";
+    public static final String SCHEME = "scheme";
+    public static final String SSL_SCHEME = "sslscheme";
     public static final String EXTRA_HEADING_TEXT = "headingtext";
     public static final String NODE_MUTATIONS = "nodemodification";
     public static final String JQUERY_STYLE = "jquerystyle";
@@ -95,6 +98,24 @@ public class ExhibitorCLI
     public static final String ACL_ID = "aclid";
     public static final String ACL_PERMISSIONS = "aclperms";
     public static final String SERVO_INTEGRATION = "servo";
+
+    public static final String CLIENT_KEYSTORE_PATH = "clientkeystorepath";
+    public static final String CLIENT_KEYSTORE_PASS = "clientkeystorepass";
+    public static final String CLIENT_KEYSTORE_TYPE = "clientkeystoretype";
+    public static final String CLIENT_KEYMANAGER_TYPE = "clientkeymanagertype";
+    public static final String CLIENT_TRUSTSTORE_PATH = "clienttruststorepath";
+    public static final String CLIENT_TRUSTSTORE_PASS = "clienttruststorepass";
+    public static final String CLIENT_TRUSTSTORE_TYPE = "clienttruststoretype";
+    public static final String CLIENT_TRUSTMANAGER_TYPE = "clienttrustmanagertype";
+
+    public static final String SERVER_KEYSTORE_PATH = "serverkeystorepath";
+    public static final String SERVER_KEYSTORE_PASS = "serverkeystorepass";
+    public static final String SERVER_KEYSTORE_TYPE = "serverkeystoretype";
+    public static final String SERVER_KEYMANAGER_TYPE = "serverkeymanagertype";
+    public static final String SERVER_TRUSTSTORE_PATH = "servertruststorepath";
+    public static final String SERVER_TRUSTSTORE_PASS = "servertruststorepass";
+    public static final String SERVER_TRUSTSTORE_TYPE = "servertruststoretype";
+    public static final String SERVER_TRUSTMANAGER_TYPE = "servertrustmanagertype";
 
     public static final String SECURITY_FILE = "security";
     public static final String REALM = "realm";
@@ -162,7 +183,9 @@ public class ExhibitorCLI
         generalOptions.addOption(null, TIMEOUT, true, "Connection timeout (ms) for ZK connections. Default is 30000.");
         generalOptions.addOption(null, LOGLINES, true, "Max lines of logging to keep in memory for display. Default is 1000.");
         generalOptions.addOption(null, HOSTNAME, true, "Hostname to use for this JVM. Default is: " + hostname);
-        generalOptions.addOption(null, HTTP_PORT, true, "Port for the HTTP Server. Default is: 8080");
+        generalOptions.addOption(null, HTTP_PORT, true, "Port for the HTTP/HTTPS Server. Default is: 8080");
+        generalOptions.addOption(null, SCHEME, true, "Application layer scheme. Default is: http");
+        generalOptions.addOption(null, SSL_SCHEME, true, "Type of SSL scheme to use: Default is: TLS");
         generalOptions.addOption(null, EXTRA_HEADING_TEXT, true, "Extra text to display in UI header");
         generalOptions.addOption(null, NODE_MUTATIONS, true, "If true, the Explorer UI will allow nodes to be modified (use with caution). Default is true.");
         generalOptions.addOption(null, JQUERY_STYLE, true, "Styling used for the JQuery-based UI. Currently available options: " + getStyleOptions());
@@ -172,6 +195,30 @@ public class ExhibitorCLI
         generalOptions.addOption(null, SERVO_INTEGRATION, true, "true/false (default is false). If enabled, ZooKeeper will be queried once a minute for its state via the 'mntr' four letter word (this requires ZooKeeper 3.4.x+). Servo will be used to publish this data via JMX.");
         generalOptions.addOption(null, INITIAL_CONFIG_FILE, true, "Full path to a file that contains initial/default values for Exhibitor/ZooKeeper config values. The file is a standard property file. The property names are listed below. The file can specify some or all of the properties.");
         generalOptions.addOption(null, PREFERENCES_PATH, true, "Certain values (such as Control Panel values) are stored in a preferences file. By default, Preferences.userRoot() is used. Use this option to specify a different file path.");
+
+        Options clientSsl = new Options();
+        clientSsl.addOption(null, CLIENT_KEYSTORE_PATH, true, "Path to client keystore. Default is: " +
+            System.getProperty("user.home") + File.separator + ".clientkeystore");
+        clientSsl.addOption(null, CLIENT_KEYSTORE_PASS, true, "Password for client keystore. Default it: password");
+        clientSsl.addOption(null, CLIENT_KEYSTORE_TYPE, true, "Type of client keystore. Default it: JKS");
+        clientSsl.addOption(null, CLIENT_KEYMANAGER_TYPE, true, "Type of client keymanager. Default is: SunX509");
+        clientSsl.addOption(null, CLIENT_TRUSTSTORE_PATH, true, "Path to client truststore. Default is: " + 
+            System.getProperty("user.home") + File.separator + ".clienttruststore");
+        clientSsl.addOption(null, CLIENT_TRUSTSTORE_PASS, true, "Path to client truststore. Default is: password");
+        clientSsl.addOption(null, CLIENT_TRUSTSTORE_TYPE, true, "Path to client truststore. Default is: JKS");
+        clientSsl.addOption(null, CLIENT_TRUSTMANAGER_TYPE, true, "Type of client trustmanager. Default is: SunX509");
+
+        Options serverSsl = new Options();
+        serverSsl.addOption(null, SERVER_KEYSTORE_PATH, true, "Path to server keystore. Default is: " +
+            System.getProperty("user.home") + File.separator + ".serverkeystore");
+        serverSsl.addOption(null, SERVER_KEYSTORE_PASS, true, "Password for server keystore. Default is: password");
+        serverSsl.addOption(null, SERVER_KEYSTORE_TYPE, true, "Type of server keystore. Default it: JKS");
+        serverSsl.addOption(null, SERVER_KEYMANAGER_TYPE, true, "Type of server keymanager. Default is: SunX509");
+        serverSsl.addOption(null, SERVER_TRUSTSTORE_PATH, true, "Path to server truststore. Default is: " + 
+            System.getProperty("user.home") + File.separator + ".servertruststore");
+        serverSsl.addOption(null, SERVER_TRUSTSTORE_PASS, true, "Path to server truststore. Default is: password");
+        serverSsl.addOption(null, SERVER_TRUSTSTORE_TYPE, true, "Path to server truststore. Default is: JKS");
+        serverSsl.addOption(null, SERVER_TRUSTMANAGER_TYPE, true, "Type of server trustmanager. Default is: SunX509");
 
         Options aclOptions = new Options();
         aclOptions.addOption(null, ACL_ID, true, "Enable ACL for Exhibitor's internal ZooKeeper connection. This sets the ACL's ID.");
@@ -186,6 +233,8 @@ public class ExhibitorCLI
         addAll("Configuration Options for Type \"none\"", noneConfigOptions);
         addAll("Backup Options", backupOptions);
         addAll("Authorization Options", authOptions);
+        addAll("Client SSL Options", clientSsl);
+        addAll("Server SSL Options", serverSsl);
         addAll("Deprecated Authorization Options", deprecatedAuthOptions);
         addAll("ACL Options", aclOptions);
         addAll(null, generalOptions);

@@ -41,6 +41,7 @@ import com.netflix.exhibitor.core.s3.PropertyBasedS3Credential;
 import com.netflix.exhibitor.core.s3.S3ClientFactoryImpl;
 import com.netflix.exhibitor.core.servo.ServoRegistration;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
+import com.netflix.exhibitor.core.SSLConfigurationBundle; 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;
@@ -87,7 +88,8 @@ public class ExhibitorCreator
     private final SecurityHandler securityHandler;
     private final BackupProvider backupProvider;
     private final ConfigProvider configProvider;
-    private final int httpPort;
+    private final SSLConfigurationBundle serverSSL;
+    private final SSLConfigurationBundle clientSSL;
     private final List<Closeable> closeables = Lists.newArrayList();
     private final String securityFile;
     private final String realmSpec;
@@ -146,6 +148,7 @@ public class ExhibitorCreator
         int configCheckMs = Integer.parseInt(commandLine.getOptionValue(CONFIGCHECKMS, "30000"));
         String useHostname = commandLine.getOptionValue(HOSTNAME, cli.getHostname());
         int httpPort = Integer.parseInt(commandLine.getOptionValue(HTTP_PORT, "8080"));
+        String scheme = commandLine.getOptionValue(SCHEME, "http");
         String extraHeadingText = commandLine.getOptionValue(EXTRA_HEADING_TEXT, null);
         boolean allowNodeMutations = "true".equalsIgnoreCase(commandLine.getOptionValue(NODE_MUTATIONS, "true"));
 
@@ -211,6 +214,30 @@ public class ExhibitorCreator
             servoRegistration = new ServoRegistration(new JmxMonitorRegistry("exhibitor"), 60000);
         }
 
+        String sslScheme = commandLine.getOptionValue(SSL_SCHEME);
+
+        String serverKeystorePath = commandLine.getOptionValue(SERVER_KEYSTORE_PATH);
+        String serverKeystorePass = commandLine.getOptionValue(SERVER_KEYSTORE_PASS);
+        String serverKeystoreType = commandLine.getOptionValue(SERVER_KEYSTORE_TYPE);
+        String serverKeymanagerType = commandLine.getOptionValue(SERVER_KEYMANAGER_TYPE);
+        String serverTruststorePath = commandLine.getOptionValue(SERVER_TRUSTSTORE_PATH);
+        String serverTruststorePass = commandLine.getOptionValue(SERVER_TRUSTSTORE_PASS);
+        String serverTruststoreType = commandLine.getOptionValue(SERVER_TRUSTSTORE_TYPE);
+        String serverTrustmanagerType = commandLine.getOptionValue(SERVER_TRUSTMANAGER_TYPE);
+        serverSSL = new SSLConfigurationBundle(serverKeystorePath, serverKeystorePass, serverKeystoreType, serverKeymanagerType,
+            serverTruststorePath, serverTruststorePass, serverTruststoreType, serverTrustmanagerType, sslScheme);
+
+        String clientKeystorePath = commandLine.getOptionValue(CLIENT_KEYSTORE_PATH);
+        String clientKeystorePass = commandLine.getOptionValue(CLIENT_KEYSTORE_PASS);
+        String clientKeystoreType = commandLine.getOptionValue(CLIENT_KEYSTORE_TYPE);
+        String clientKeymanagerType = commandLine.getOptionValue(CLIENT_KEYMANAGER_TYPE);
+        String clientTruststorePath = commandLine.getOptionValue(CLIENT_TRUSTSTORE_PATH);
+        String clientTruststorePass = commandLine.getOptionValue(CLIENT_TRUSTSTORE_PASS);
+        String clientTruststoreType = commandLine.getOptionValue(CLIENT_TRUSTSTORE_TYPE);
+        String clientTrustmanagerType = commandLine.getOptionValue(CLIENT_TRUSTMANAGER_TYPE);
+        clientSSL = new SSLConfigurationBundle(clientKeystorePath, clientKeystorePass, clientKeystoreType, clientKeymanagerType,
+            clientTruststorePath, clientTruststorePass, clientTruststoreType, clientTrustmanagerType, sslScheme);
+
         String              preferencesPath = commandLine.getOptionValue(PREFERENCES_PATH);
 
         this.builder = ExhibitorArguments.builder()
@@ -222,6 +249,7 @@ public class ExhibitorCreator
             .allowNodeMutations(allowNodeMutations)
             .jQueryStyle(jQueryStyle)
             .restPort(httpPort)
+            .restScheme(scheme)
             .aclProvider(aclProvider)
             .servoRegistration(servoRegistration)
             .preferencesPath(preferencesPath)
@@ -230,17 +258,11 @@ public class ExhibitorCreator
         this.securityHandler = handler;
         this.backupProvider = backupProvider;
         this.configProvider = configProvider;
-        this.httpPort = httpPort;
     }
 
     public ExhibitorArguments.Builder getBuilder()
     {
         return builder;
-    }
-
-    public int getHttpPort()
-    {
-        return httpPort;
     }
 
     public ConfigProvider getConfigProvider()
@@ -276,6 +298,16 @@ public class ExhibitorCreator
     public String getRemoteAuthSpec()
     {
         return remoteAuthSpec;
+    }
+
+    public SSLConfigurationBundle getClientSSL()
+    {
+        return clientSSL;
+    }
+
+    public SSLConfigurationBundle getServerSSL()
+    {
+        return serverSSL;
     }
 
     private ConfigProvider makeConfigProvider(String configType, ExhibitorCLI cli, CommandLine commandLine, PropertyBasedS3Credential awsCredentials, PropertyBasedS3ClientConfig awsClientConfig, BackupProvider backupProvider, String useHostname, String s3Region) throws Exception
