@@ -104,7 +104,7 @@ public class ClusterStatusTask extends RecursiveTask<List<ServerStatus>>
                 return new ServerStatus(spec.getHostname(), InstanceStateTypes.DOWN.getCode(), InstanceStateTypes.DOWN.getDescription(), false);
             }
 
-            int                             code = value.get("state").asInt();
+            int                             code = value.get("state").getValueAsInt();
             String                          description = value.get("description").getTextValue();
             return new ServerStatus(spec.getHostname(), code, description, value.get("isLeader").getBooleanValue());
         }

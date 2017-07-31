@@ -55,7 +55,7 @@ public class RemoteInstanceRequestHttpsClientImpl implements RemoteInstanceReque
 
         KeyStore keystore = KeyStore.getInstance(sslBundle.getKeystoreType());
         keystore.load(new FileInputStream(sslBundle.getKeystorePath()), sslBundle.getKeystorePass().toCharArray());
-        
+
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(sslBundle.getKeymanagerType());
         kmf.init(keystore, sslBundle.getKeystorePass().toCharArray());
 

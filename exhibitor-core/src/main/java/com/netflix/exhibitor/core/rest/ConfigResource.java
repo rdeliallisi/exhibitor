@@ -297,7 +297,7 @@ public class ConfigResource
                 {
                     return "";
                 }
-                return node.asText();
+                return node.getTextValue();
             }
 
             @Override
@@ -308,7 +308,7 @@ public class ConfigResource
                 {
                     return 0;
                 }
-                return node.asInt();
+                return node.getValueAsInt();
             }
         };
     }

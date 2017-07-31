@@ -47,7 +47,7 @@ public class SSLConfigurationBundle {
 
     public SSLConfigurationBundle(String keystorePath, String keystorePass, String truststorePath,
             String truststorePass)
-    {   
+    {
         if(keystorePath != null)
             this.keystorePath = keystorePath;
         if(keystorePass != null)

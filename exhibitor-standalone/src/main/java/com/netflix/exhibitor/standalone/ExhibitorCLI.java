@@ -228,7 +228,7 @@ public class ExhibitorCLI
         clientSsl.addOption(null, CLIENT_KEYSTORE_PASS, true, "Password for client keystore. Default it: password");
         clientSsl.addOption(null, CLIENT_KEYSTORE_TYPE, true, "Type of client keystore. Default it: JKS");
         clientSsl.addOption(null, CLIENT_KEYMANAGER_TYPE, true, "Type of client keymanager. Default is: SunX509");
-        clientSsl.addOption(null, CLIENT_TRUSTSTORE_PATH, true, "Path to client truststore. Default is: " + 
+        clientSsl.addOption(null, CLIENT_TRUSTSTORE_PATH, true, "Path to client truststore. Default is: " +
             System.getProperty("user.home") + File.separator + ".clienttruststore");
         clientSsl.addOption(null, CLIENT_TRUSTSTORE_PASS, true, "Path to client truststore. Default is: password");
         clientSsl.addOption(null, CLIENT_TRUSTSTORE_TYPE, true, "Path to client truststore. Default is: JKS");
@@ -240,7 +240,7 @@ public class ExhibitorCLI
         serverSsl.addOption(null, SERVER_KEYSTORE_PASS, true, "Password for server keystore. Default is: password");
         serverSsl.addOption(null, SERVER_KEYSTORE_TYPE, true, "Type of server keystore. Default it: JKS");
         serverSsl.addOption(null, SERVER_KEYMANAGER_TYPE, true, "Type of server keymanager. Default is: SunX509");
-        serverSsl.addOption(null, SERVER_TRUSTSTORE_PATH, true, "Path to server truststore. Default is: " + 
+        serverSsl.addOption(null, SERVER_TRUSTSTORE_PATH, true, "Path to server truststore. Default is: " +
             System.getProperty("user.home") + File.separator + ".servertruststore");
         serverSsl.addOption(null, SERVER_TRUSTSTORE_PASS, true, "Path to server truststore. Default is: password");
         serverSsl.addOption(null, SERVER_TRUSTSTORE_TYPE, true, "Path to server truststore. Default is: JKS");

@@ -52,7 +52,7 @@ import com.netflix.exhibitor.core.s3.PropertyBasedS3Credential;
 import com.netflix.exhibitor.core.s3.S3ClientFactoryImpl;
 import com.netflix.exhibitor.core.servo.ServoRegistration;
 import com.netflix.servo.jmx.JmxMonitorRegistry;
-import com.netflix.exhibitor.core.SSLConfigurationBundle; 
+import com.netflix.exhibitor.core.SSLConfigurationBundle;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.ParseException;

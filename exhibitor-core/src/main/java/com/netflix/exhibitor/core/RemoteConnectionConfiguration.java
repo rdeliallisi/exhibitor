@@ -6,7 +6,8 @@ import com.google.common.collect.Lists;
 import com.sun.jersey.api.client.filter.ClientFilter;
 import java.util.Collection;
 
-public class RemoteConnectionConfiguration {
+public class RemoteConnectionConfiguration
+{
     private final Collection<ClientFilter> filters;
     private final int connectionTimeoutMs;
     private final int readTimeoutMs;
@@ -15,44 +16,53 @@ public class RemoteConnectionConfiguration {
     private static final int DEFAULT_CONNECTION_TIMEOUT_MS = 10000;
     private static final int DEFAULT_READ_TIMEOUT_MS = 3000;
 
-    public RemoteConnectionConfiguration() {
+    public RemoteConnectionConfiguration()
+    {
         this(new SSLConfigurationBundle(), Lists.<ClientFilter>newArrayList(), DEFAULT_CONNECTION_TIMEOUT_MS,
                 DEFAULT_READ_TIMEOUT_MS);
     }
 
-    public RemoteConnectionConfiguration(Collection<ClientFilter> filters) {
+    public RemoteConnectionConfiguration(Collection<ClientFilter> filters)
+    {
         this(new SSLConfigurationBundle(), filters, DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS);
     }
 
-    public RemoteConnectionConfiguration(SSLConfigurationBundle sslBundle) {
+    public RemoteConnectionConfiguration(SSLConfigurationBundle sslBundle)
+    {
         this(sslBundle, Lists.<ClientFilter>newArrayList(), DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS);
     }
 
-    public RemoteConnectionConfiguration(SSLConfigurationBundle sslBundle, Collection<ClientFilter> filters) {
+    public RemoteConnectionConfiguration(SSLConfigurationBundle sslBundle, Collection<ClientFilter> filters)
+    {
         this(sslBundle, filters, DEFAULT_CONNECTION_TIMEOUT_MS, DEFAULT_READ_TIMEOUT_MS);
     }
 
     public RemoteConnectionConfiguration(SSLConfigurationBundle sslBundle, Collection<ClientFilter> filters,
-            int connectionTimeoutMs, int readTimeoutMs) {
+            int connectionTimeoutMs, int readTimeoutMs)
+    {
         this.sslBundle = sslBundle;
         this.filters = ImmutableList.copyOf(Preconditions.checkNotNull(filters, "filters cannot be null"));
         this.connectionTimeoutMs = connectionTimeoutMs;
         this.readTimeoutMs = readTimeoutMs;
     }
 
-    public Collection<ClientFilter> getFilters() {
+    public Collection<ClientFilter> getFilters()
+    {
         return filters;
     }
 
-    public int getConnectionTimeoutMs() {
+    public int getConnectionTimeoutMs()
+    {
         return connectionTimeoutMs;
     }
 
-    public int getReadTimeoutMs() {
+    public int getReadTimeoutMs()
+    {
         return readTimeoutMs;
     }
 
-    public SSLConfigurationBundle getSslBundle() {
+    public SSLConfigurationBundle getSslBundle()
+    {
         return sslBundle;
     }
 }

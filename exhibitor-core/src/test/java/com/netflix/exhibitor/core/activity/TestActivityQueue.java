@@ -177,7 +177,7 @@ public class TestActivityQueue
     @Test
     public void testRepeating() throws Exception
     {
-        final int DELAY_MS = 500;
+        final int DELAY = 500;
 
         RepeatingActivity       repeating = null;
         ActivityQueue           queue = new ActivityQueue();
@@ -196,15 +196,15 @@ public class TestActivityQueue
                 @Override
                 public Boolean call() throws Exception
                 {
-                    times.add(System.nanoTime());
+                    times.add(System.currentTimeMillis());
                     latch.countDown();
                     return true;
                 }
             };
-            repeating = new RepeatingActivityImpl(null, queue, QueueGroups.MAIN, activity, DELAY_MS);
+            repeating = new RepeatingActivityImpl(null, queue, QueueGroups.MAIN, activity, DELAY);
             repeating.start();
 
-            long                    start = System.nanoTime();
+            long                    start = System.currentTimeMillis();
             Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
             repeating.close();
 
@@ -215,7 +215,7 @@ public class TestActivityQueue
             {
                 long thisTime = times.get(i);
                 long elapsed = thisTime - check;
-                Assert.assertTrue(elapsed >= (DELAY_MS - (DELAY_MS / 10)), "elapsed: " + elapsed);
+                Assert.assertTrue(elapsed >= (DELAY - (DELAY / 10)), "elapsed: " + elapsed);
                 check = thisTime;
             }
         }
@@ -245,16 +245,16 @@ public class TestActivityQueue
                 @Override
                 public Boolean call() throws Exception
                 {
-                    callTime.set(System.nanoTime());
+                    callTime.set(System.currentTimeMillis());
                     latch.countDown();
                     return true;
                 }
             };
 
-            long                    start = System.nanoTime();
+            long                    start = System.currentTimeMillis();
             queue.add(QueueGroups.MAIN, activity, 2, TimeUnit.SECONDS);
             Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
-            Assert.assertTrue((callTime.get() - start) >= 2000000);
+            Assert.assertTrue((callTime.get() - start) >= 2000);
         }
         finally
         {

@@ -133,7 +133,7 @@ public class ExhibitorMain implements Closeable
             builder.remoteConnectionConfiguration(new RemoteConnectionConfiguration(securityArguments.getClientSSL()));
         else
             builder.remoteConnectionConfiguration(new RemoteConnectionConfiguration(securityArguments.getClientSSL(), Arrays.asList(filter)));
-        
+
         builder.shutdownProc(makeShutdownProc(this));
         exhibitor = new Exhibitor(configProvider, null, backupProvider, builder.build());
         exhibitor.start();

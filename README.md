@@ -1,9 +1,3 @@
-[![Build Status](https://travis-ci.org/soabase/exhibitor.svg?branch=master)](https://travis-ci.org/soabase/exhibitor) [![Join the chat at https://gitter.im/soabase/exhibitor](https://badges.gitter.im/soabase/exhibitor.svg)](https://gitter.im/soabase/exhibitor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-# IMPORTANT NOTE
-
-Exhibitor is now on its own! PLEASE READ THIS NOTE: https://groups.google.com/forum/#!topic/exhibitor-users/PVkcd88mk8c
-
 ## DESCRIPTION
 Exhibitor is a supervisor system for ZooKeeper.
 
@@ -13,8 +7,8 @@ Please see the doc at https://github.com/Netflix/exhibitor/wiki
 
 ## BUILDING
 
-Exhibitor is built via Maven (https://maven.apache.org/).  
-To build do `mvn install`.
+Exhibitor is built via Gradle (http://www.gradle.org). To build from the command line:
+    ./gradlew build
 
 ## ARTIFACTS
 
