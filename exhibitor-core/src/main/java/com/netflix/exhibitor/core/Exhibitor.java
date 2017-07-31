@@ -136,7 +136,7 @@ public class Exhibitor implements Closeable
         processMonitor = new ProcessMonitor(this);
         autoInstanceManagement = new RepeatingActivityImpl(log, activityQueue, QueueGroups.MAIN, new AutomaticInstanceManagement(this), getAutoInstanceManagementPeriod());
 
-        if(arguments.restScheme == "http")
+        if(arguments.restScheme.equals("http"))
         {
             remoteInstanceRequestClient = new RemoteInstanceRequestClientImpl(arguments.remoteConnectionConfiguration);
         }
