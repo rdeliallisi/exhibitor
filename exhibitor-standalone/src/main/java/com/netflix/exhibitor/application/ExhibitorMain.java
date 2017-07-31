@@ -25,6 +25,7 @@ import com.sun.jersey.spi.container.servlet.ServletContainer;
 import com.netflix.exhibitor.core.Exhibitor;
 import com.netflix.exhibitor.core.ExhibitorArguments;
 import com.netflix.exhibitor.core.RemoteConnectionConfiguration;
+import com.netflix.exhibitor.core.SSLConfigurationBundle;
 import com.netflix.exhibitor.core.backup.BackupProvider;
 import com.netflix.exhibitor.core.config.ConfigProvider;
 import com.netflix.exhibitor.core.rest.UIContext;
@@ -41,10 +42,12 @@ import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.security.HashUserRealm;
 import org.mortbay.jetty.security.SecurityHandler;
+import org.mortbay.jetty.security.SslSocketConnector;
 import org.mortbay.jetty.servlet.Context;
 import org.mortbay.jetty.servlet.ServletHolder;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -59,6 +62,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.net.ssl.ExtendedSSLSession;
 
 public class ExhibitorMain implements Closeable
 {
@@ -87,13 +92,13 @@ public class ExhibitorMain implements Closeable
             return;
         }
 
-        SecurityArguments securityArguments = new SecurityArguments(creator.getSecurityFile(), creator.getRealmSpec(), creator.getRemoteAuthSpec());
+        SecurityArguments securityArguments = new SecurityArguments(creator.getSecurityFile(), creator.getRealmSpec(), creator.getRemoteAuthSpec(),
+            creator.getClientSSL(), creator.getServerSSL());
         ExhibitorMain exhibitorMain = new ExhibitorMain
         (
             creator.getBackupProvider(),
             creator.getConfigProvider(),
             creator.getBuilder(),
-            creator.getHttpPort(),
             creator.getSecurityHandler(),
             securityArguments
         );
@@ -115,14 +120,20 @@ public class ExhibitorMain implements Closeable
         }
     }
 
-    public ExhibitorMain(BackupProvider backupProvider, ConfigProvider configProvider, ExhibitorArguments.Builder builder, int httpPort, SecurityHandler security, SecurityArguments securityArguments) throws Exception
+    public ExhibitorMain(BackupProvider backupProvider, ConfigProvider configProvider, ExhibitorArguments.Builder builder, SecurityHandler security, SecurityArguments securityArguments) throws Exception
     {
         HashUserRealm realm = makeRealm(securityArguments);
+        ClientFilter filter = null;
         if ( securityArguments.getRemoteAuthSpec() != null )
         {
-            addRemoteAuth(builder, securityArguments.getRemoteAuthSpec());
+            filter = addRemoteAuth(builder, securityArguments);
         }
 
+        if(filter == null)
+            builder.remoteConnectionConfiguration(new RemoteConnectionConfiguration(securityArguments.getClientSSL()));
+        else
+            builder.remoteConnectionConfiguration(new RemoteConnectionConfiguration(securityArguments.getClientSSL(), Arrays.asList(filter)));
+        
         builder.shutdownProc(makeShutdownProc(this));
         exhibitor = new Exhibitor(configProvider, null, backupProvider, builder.build());
         exhibitor.start();
@@ -132,19 +143,38 @@ public class ExhibitorMain implements Closeable
 
         server = new Server();
 
-        // By default the jetty.bio.SocketConnector is used. The
-        // SocketConnector performs blocking I/O and so suffers from
-        // spawning a new thread per connection. To improve
-        // performance and limit the number of threads we switch to
-        // the jetty.nio.SelectChannelConnector. This is a
-        // non-blocking I/O connector.
-        // See https://dcosjira.atlassian.net/browse/DCOS-558
-        SelectChannelConnector connector = new SelectChannelConnector();
-        connector.setPort(httpPort);
-        connector.setAcceptors(8);
-        connector.setMaxIdleTime(5000);
-        connector.setAcceptQueueSize(32);
-        server.setConnectors(new Connector[]{connector});
+        if(exhibitor.getRestScheme().equals("http"))
+        {
+            // By default the jetty.bio.SocketConnector is used. The
+            // SocketConnector performs blocking I/O and so suffers from
+            // spawning a new thread per connection. To improve
+            // performance and limit the number of threads we switch to
+            // the jetty.nio.SelectChannelConnector. This is a
+            // non-blocking I/O connector.
+            // See https://dcosjira.atlassian.net/browse/DCOS-558
+            SelectChannelConnector connector = new SelectChannelConnector();
+            connector.setPort(exhibitor.getRestPort());
+            connector.setAcceptors(8);
+            connector.setMaxIdleTime(5000);
+            connector.setAcceptQueueSize(32);
+            server.addConnector(connector);
+        }
+        else {
+            SSLConfigurationBundle serverSSL = securityArguments.getServerSSL();
+            SslSocketConnector sslSocketConnector = new SslSocketConnector();
+            sslSocketConnector.setPort(exhibitor.getRestPort());
+            sslSocketConnector.setKeystore(serverSSL.getKeystorePath());
+            sslSocketConnector.setKeyPassword(serverSSL.getKeystorePass());
+            sslSocketConnector.setKeystoreType(serverSSL.getKeystoreType());
+            sslSocketConnector.setSslKeyManagerFactoryAlgorithm(serverSSL.getKeymanagerType());
+            sslSocketConnector.setTruststore(serverSSL.getTruststorePath());
+            sslSocketConnector.setTrustPassword(serverSSL.getTruststorePass());
+            sslSocketConnector.setTruststoreType(serverSSL.getTruststoreType());
+            sslSocketConnector.setSslTrustManagerFactoryAlgorithm(serverSSL.getTrustmanagerType());
+            // sslSocketConnector.setWantClientAuth(true);
+            // sslSocketConnector.setNeedClientAuth(true);
+            server.addConnector(sslSocketConnector);
+        }
 
         // The server's threadPool implementation defaults to the
         // QueuedThreadPool.  The QueuedThreadPool has no limit on the
@@ -191,10 +221,10 @@ public class ExhibitorMain implements Closeable
         }
     }
 
-    private void addRemoteAuth(ExhibitorArguments.Builder builder, String remoteAuthSpec)
+    private ClientFilter addRemoteAuth(ExhibitorArguments.Builder builder, SecurityArguments securityArguments)
     {
-        String[] parts = remoteAuthSpec.split(":");
-        Preconditions.checkArgument(parts.length == 2, "Badly formed remote client authorization: " + remoteAuthSpec);
+        String[] parts = securityArguments.getRemoteAuthSpec().split(":");
+        Preconditions.checkArgument(parts.length == 2, "Badly formed remote client authorization: " + securityArguments.getRemoteAuthSpec());
 
         String type = parts[0].trim();
         String userName = parts[1].trim();
@@ -215,7 +245,7 @@ public class ExhibitorMain implements Closeable
             throw new IllegalStateException("Unknown remote client authorization type: " + type);
         }
 
-        builder.remoteConnectionConfiguration(new RemoteConnectionConfiguration(Arrays.asList(filter)));
+        return filter;
     }
 
     public void start() throws Exception

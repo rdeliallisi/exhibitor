@@ -41,61 +41,82 @@ public class SSLConfigurationBundle {
 
     private String sslContextType = DEFAULT_SSL_CONTEXT_TYPE;
 
-    public SSLConfigurationBundle() {
+    public SSLConfigurationBundle()
+    {
     }
 
     public SSLConfigurationBundle(String keystorePath, String keystorePass, String truststorePath,
-            String truststorePass) {
-        this.keystorePath = keystorePath;
-        this.keystorePass = keystorePass;
-        this.truststorePath = truststorePath;
-        this.truststorePass = truststorePass;
+            String truststorePass)
+    {   
+        if(keystorePath != null)
+            this.keystorePath = keystorePath;
+        if(keystorePass != null)
+            this.keystorePass = keystorePass;
+        if(truststorePath!= null)
+            this.truststorePath = truststorePath;
+        if(truststorePass != null)
+            this.truststorePass = truststorePass;
     }
 
     public SSLConfigurationBundle(String keystorePath, String keystorePass, String keystoreType, String keymanagerType,
             String truststorePath, String truststorePass, String truststoreType, String trustmanagerType,
-            String sslContextType) {
+            String sslContextType)
+    {
         this(keystorePath, keystorePass, truststorePath, truststorePass);
-        this.keystoreType = keystoreType;
-        this.keymanagerType = keymanagerType;
-        this.truststoreType = truststoreType;
-        this.trustmanagerType = trustmanagerType;
-        this.sslContextType = sslContextType;
+        if(keystoreType != null)
+            this.keystoreType = keystoreType;
+        if(keymanagerType != null)
+            this.keymanagerType = keymanagerType;
+        if(truststoreType != null)
+            this.truststoreType = truststoreType;
+        if(trustmanagerType != null)
+            this.trustmanagerType = trustmanagerType;
+        if(sslContextType != null)
+            this.sslContextType = sslContextType;
     }
 
-    public String getKeystorePath() {
+    public String getKeystorePath()
+    {
         return keystorePath;
     }
 
-    public String getKeystorePass() {
+    public String getKeystorePass()
+    {
         return keystorePass;
     }
 
-    public String getKeystoreType() {
+    public String getKeystoreType()
+    {
         return keystoreType;
     }
 
-    public String getKeymanagerType() {
+    public String getKeymanagerType()
+    {
         return keymanagerType;
     }
 
-    public String getTruststorePath() {
+    public String getTruststorePath()
+    {
         return truststorePath;
     }
 
-    public String getTruststorePass() {
+    public String getTruststorePass()
+    {
         return truststorePass;
     }
 
-    public String getTruststoreType() {
+    public String getTruststoreType()
+    {
         return truststoreType;
     }
 
-    public String getTrustmanagerType() {
+    public String getTrustmanagerType()
+    {
         return trustmanagerType;
     }
 
-    public String getSslContextType() {
+    public String getSslContextType()
+    {
         return sslContextType;
     }
 }
