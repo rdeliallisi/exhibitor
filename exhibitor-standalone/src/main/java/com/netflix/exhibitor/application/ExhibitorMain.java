@@ -171,8 +171,8 @@ public class ExhibitorMain implements Closeable
             sslSocketConnector.setTrustPassword(serverSSL.getTruststorePass());
             sslSocketConnector.setTruststoreType(serverSSL.getTruststoreType());
             sslSocketConnector.setSslTrustManagerFactoryAlgorithm(serverSSL.getTrustmanagerType());
-            // sslSocketConnector.setWantClientAuth(true);
-            // sslSocketConnector.setNeedClientAuth(true);
+            sslSocketConnector.setWantClientAuth(true);
+            sslSocketConnector.setNeedClientAuth(true);
             server.addConnector(sslSocketConnector);
         }
 
